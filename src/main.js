@@ -219,7 +219,9 @@ function renderCard(p) {
     }).join('')
   } catch (e) {}
 
-  const teamPhoto = p.team_photo_url ? `<img src="${p.team_photo_url}" class="team-photo" alt="Team photo">` : ''
+  const teamPhoto = p.team_photo_url
+    ? `<img src="${p.team_photo_url}" class="team-photo" alt="Team photo">`
+    : ''
 
   return `<div class="feed-card">
     <div class="feed-body">
@@ -228,7 +230,10 @@ function renderCard(p) {
       ${tools}${projectLink}
     </div>
     ${media}
-    <div class="team-section">${teamPhoto}${membersHtml}</div>
+    <div class="team-section">
+      ${teamPhoto}
+      <div class="team-members">${membersHtml}</div>
+    </div>
   </div>`
 }
 
