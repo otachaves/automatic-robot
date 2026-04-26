@@ -82,14 +82,14 @@
     </div>
 
     <div class="form-group">
-      <label>App Screenshot or Slide Deck PDF *</label>
+      <label>App Screenshots or Slide Deck *</label>
       <div class="upload-area">
-        <input type="file" id="f-media" accept="image/*,.pdf" onchange="handleFile(this,'media')">
+        <input type="file" id="f-media" accept="image/*" multiple onchange="handleFile(this,'media')">
         <div class="upload-icon">🖼️</div>
-        <p>Click or drag — image or PDF</p>
-        <div class="file-name" id="media-file-name"></div>
+        <p>Click or drag — add your app screenshots or slide deck (PNG, JPG)</p>
         <div class="upload-progress" id="media-progress"><div class="bar" id="media-bar"></div></div>
       </div>
+      <div class="preview-strip" id="media-preview"></div>
     </div>
 
     <div class="form-section-title">Team</div>

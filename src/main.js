@@ -2,7 +2,7 @@ import './style.css'
 import { uploadFile, loadProjects, insertProject } from './supabase.js'
 
 // ── State ──────────────────────────────────────────────────────────────────
-let uploadedMedia = null
+let uploadedMediaFiles = []
 let uploadedTeamPhoto = null
 let selectedTools = []
 
@@ -58,12 +58,31 @@ window.removeMember = function(btn) {
 
 // ── File selection ─────────────────────────────────────────────────────────
 window.handleFile = function(input, type) {
-  const file = input.files[0]
-  if (!file) return
-  const nameEl = document.getElementById(type === 'media' ? 'media-file-name' : 'team-file-name')
-  nameEl.textContent = file.name
-  if (type === 'media') uploadedMedia = file
-  else uploadedTeamPhoto = file
+  if (type === 'media') {
+    const newFiles = Array.from(input.files)
+    uploadedMediaFiles = [...uploadedMediaFiles, ...newFiles]
+    renderMediaPreviews()
+    input.value = ''
+  } else {
+    const file = input.files[0]
+    if (!file) return
+    document.getElementById('team-file-name').textContent = file.name
+    uploadedTeamPhoto = file
+  }
+}
+
+window.removeMediaFile = function(index) {
+  uploadedMediaFiles.splice(index, 1)
+  renderMediaPreviews()
+}
+
+function renderMediaPreviews() {
+  const strip = document.getElementById('media-preview')
+  strip.innerHTML = uploadedMediaFiles.map((f, i) => `
+    <div class="preview-thumb">
+      <img src="${URL.createObjectURL(f)}" alt="${f.name}">
+      <button class="remove-img" onclick="removeMediaFile(${i})">✕</button>
+    </div>`).join('')
 }
 
 // ── Submit ─────────────────────────────────────────────────────────────────
@@ -91,15 +110,15 @@ window.submitProject = async function() {
   showStatus('', '')
 
   let mediaUrl = ''
-  let mediaType = ''
+  let mediaType = 'image'
   let teamPhotoUrl = ''
 
   try {
-    if (uploadedMedia) {
-      btn.textContent = 'Uploading media…'
+    if (uploadedMediaFiles.length > 0) {
+      btn.textContent = `Uploading ${uploadedMediaFiles.length} image(s)…`
       setProgress('media-progress', true)
-      mediaType = uploadedMedia.type === 'application/pdf' ? 'pdf' : 'image'
-      mediaUrl = await uploadFile(uploadedMedia, 'media')
+      const urls = await Promise.all(uploadedMediaFiles.map(f => uploadFile(f, 'media')))
+      mediaUrl = JSON.stringify(urls)
       setProgress('media-progress', false)
     }
 
@@ -154,18 +173,27 @@ async function renderGallery() {
       el.innerHTML = '<div class="empty-state"><div class="icon">🚀</div><p>No projects yet. Be the first to submit!</p></div>'
       return
     }
-    el.innerHTML = '<div class="projects-grid">' + projects.map(renderCard).join('') + '</div>'
+    el.innerHTML = '<div class="projects-feed">' + projects.map(renderCard).join('') + '</div>'
   } catch (err) {
     el.innerHTML = '<div class="empty-state"><div class="icon">⚙️</div><p>Could not load projects — check your Supabase config.</p></div>'
   }
 }
 
 function renderCard(p) {
+  // parse media urls (stored as JSON array or legacy single string)
+  let imageUrls = []
+  try {
+    const parsed = JSON.parse(p.media_url)
+    imageUrls = Array.isArray(parsed) ? parsed : [parsed]
+  } catch {
+    if (p.media_url) imageUrls = [p.media_url]
+  }
+
   let media = ''
-  if (p.media_url && p.media_type === 'image') {
-    media = `<div class="media"><img src="${p.media_url}" alt="Project screenshot" onerror="this.parentElement.style.display='none'"></div>`
-  } else if (p.media_url && p.media_type === 'pdf') {
-    media = `<div class="media"><div class="pdf-placeholder"><div class="pdf-icon">📄</div><a href="${p.media_url}" target="_blank" style="color:var(--accent-light);font-size:0.8rem">View Slide Deck</a></div></div>`
+  if (imageUrls.length === 1) {
+    media = `<div class="feed-media single"><img src="${imageUrls[0]}" alt="Screenshot" onerror="this.parentElement.style.display='none'"></div>`
+  } else if (imageUrls.length > 1) {
+    media = `<div class="feed-media multi">${imageUrls.map(u => `<img src="${u}" alt="Screenshot" onerror="this.remove()">`).join('')}</div>`
   }
 
   const tools = p.tools
@@ -191,7 +219,15 @@ function renderCard(p) {
 
   const teamPhoto = p.team_photo_url ? `<img src="${p.team_photo_url}" class="team-photo" alt="Team photo">` : ''
 
-  return `<div class="project-card">${media}<div class="body"><h3>${p.name}</h3><p class="desc">${p.description}</p>${tools}${projectLink}<div class="team-section">${teamPhoto}${membersHtml}</div></div></div>`
+  return `<div class="feed-card">
+    <div class="feed-body">
+      <h3>${p.name}</h3>
+      <p class="desc">${p.description}</p>
+      ${tools}${projectLink}
+    </div>
+    ${media}
+    <div class="team-section">${teamPhoto}${membersHtml}</div>
+  </div>`
 }
 
 // ── Event photos (local — host device only) ────────────────────────────────
