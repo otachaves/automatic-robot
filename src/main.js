@@ -305,6 +305,7 @@ window.adminDelete = async function(id, btn) {
 
 let editImages = [] // { url: string, file: File|null }
 let editTeamPhoto = null // { url: string, file: File|null }
+let editMembers = [] // { name, linkedin, email }
 
 window.adminEdit = function(id) {
   const p = projectsMap[id]
@@ -323,9 +324,40 @@ window.adminEdit = function(id) {
     editImages = p.media_url ? [{ url: p.media_url, file: null }] : []
   }
   editTeamPhoto = p.team_photo_url ? { url: p.team_photo_url, file: null } : null
+  try {
+    editMembers = (Array.isArray(p.members) ? p.members : JSON.parse(p.members)).map(m => ({ ...m }))
+  } catch {
+    editMembers = []
+  }
   renderEditImages()
   renderEditTeamPhoto()
+  renderEditMembers()
   document.getElementById('edit-modal').classList.add('open')
+}
+
+function renderEditMembers() {
+  const list = document.getElementById('em-members-list')
+  if (!list) return
+  list.innerHTML = editMembers.map((m, i) => `
+    <div class="member-row" style="margin-bottom:0.4rem">
+      <input type="text" placeholder="Name" value="${m.name || ''}" oninput="editMembers[${i}].name=this.value">
+      <input type="text" placeholder="LinkedIn URL" value="${m.linkedin || ''}" oninput="editMembers[${i}].linkedin=this.value">
+      <input type="email" placeholder="Email" value="${m.email || ''}" oninput="editMembers[${i}].email=this.value">
+      <button class="remove-btn" onclick="removeEditMember(${i})">✕</button>
+    </div>`).join('')
+}
+
+window.addEditMember = function() {
+  editMembers.push({ name: '', linkedin: '', email: '' })
+  renderEditMembers()
+  // focus the new name input
+  const rows = document.querySelectorAll('#em-members-list .member-row')
+  if (rows.length) rows[rows.length - 1].querySelector('input').focus()
+}
+
+window.removeEditMember = function(i) {
+  editMembers.splice(i, 1)
+  renderEditMembers()
 }
 
 function renderEditImages() {
@@ -412,6 +444,7 @@ window.saveEdit = async function() {
       media_url:      JSON.stringify(finalUrls),
       media_type:     'image',
       team_photo_url: teamPhotoUrl,
+      members:        editMembers.filter(m => m.name.trim()),
     }
     btn.textContent = 'Saving…'
     await updateProject(id, updates)
