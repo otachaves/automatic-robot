@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hackathon Showcase · Archipelago AEC</title>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="logo">Archipelago AEC</div>
+  <h1>Build Your First AI Workflow</h1>
+  <p>Hackathon Project Showcase &nbsp;·&nbsp; June 24, 2026</p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('gallery', this)">🏆 Gallery</button>
+  <button class="tab-btn" onclick="switchTab('submit', this)">📤 Submit Project</button>
+</div>
+
+<!-- GALLERY -->
+<div id="gallery" class="section active">
+  <div class="event-photos-section">
+    <div class="section-heading">Event Photos</div>
+    <div class="admin-bar">
+      <label class="add-photos-btn">
+        <span>+ Add event photos</span>
+        <input type="file" accept="image/*" multiple onchange="addEventPhotos(this)">
+      </label>
+      <span style="font-size:0.75rem; color:var(--text-muted)">Photos are stored locally — add them on the host device</span>
+    </div>
+    <div class="photos-grid" id="event-photos-grid"></div>
+  </div>
+
+  <div class="section-heading">Projects</div>
+  <div id="gallery-content">
+    <div class="loading">Loading projects…</div>
+  </div>
+</div>
+
+<!-- SUBMIT -->
+<div id="submit" class="section">
+  <div class="form-card">
+    <div class="form-section-title">Project</div>
+
+    <div class="form-group">
+      <label>Project Name *</label>
+      <input type="text" id="f-name" placeholder="My awesome AI workflow">
+    </div>
+
+    <div class="form-group">
+      <label>Description *</label>
+      <textarea id="f-desc" placeholder="What does your project do? What problem does it solve?"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Project Link <span style="color:var(--text-muted);font-weight:400">(demo, repo, or video)</span></label>
+      <input type="url" id="f-link" placeholder="https://…">
+    </div>
+
+    <div class="form-group">
+      <label>Tools Used *</label>
+      <div class="tools-grid" id="tool-chips">
+        <span class="tool-chip" onclick="toggleTool(this)">Claude</span>
+        <span class="tool-chip" onclick="toggleTool(this)">ChatGPT</span>
+        <span class="tool-chip" onclick="toggleTool(this)">n8n</span>
+        <span class="tool-chip" onclick="toggleTool(this)">Make</span>
+        <span class="tool-chip" onclick="toggleTool(this)">Zapier</span>
+        <span class="tool-chip" onclick="toggleTool(this)">Cursor</span>
+        <span class="tool-chip" onclick="toggleTool(this)">Replit</span>
+        <span class="tool-chip" onclick="toggleTool(this)">Revit</span>
+        <span class="tool-chip" onclick="toggleTool(this)">Grasshopper</span>
+        <span class="tool-chip" onclick="toggleTool(this)">Python</span>
+        <span class="tool-chip" onclick="toggleTool(this)">JavaScript</span>
+        <span class="tool-chip" onclick="toggleTool(this)">Airtable</span>
+      </div>
+      <div class="tools-custom">
+        <input type="text" id="custom-tool" placeholder="Other tool… (press Enter)">
+        <button onclick="addCustomTool()">Add</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>App Screenshot or Slide Deck PDF *</label>
+      <div class="upload-area">
+        <input type="file" id="f-media" accept="image/*,.pdf" onchange="handleFile(this,'media')">
+        <div class="upload-icon">🖼️</div>
+        <p>Click or drag — image or PDF</p>
+        <div class="file-name" id="media-file-name"></div>
+        <div class="upload-progress" id="media-progress"><div class="bar" id="media-bar"></div></div>
+      </div>
+    </div>
+
+    <div class="form-section-title">Team</div>
+
+    <div class="form-group">
+      <label>Team Photo</label>
+      <div class="upload-area">
+        <input type="file" id="f-team-photo" accept="image/*" onchange="handleFile(this,'team')">
+        <div class="upload-icon">📸</div>
+        <p>Upload a team photo</p>
+        <div class="file-name" id="team-file-name"></div>
+        <div class="upload-progress" id="team-progress"><div class="bar" id="team-bar"></div></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Team Members</label>
+      <div id="members-list">
+        <div class="member-row">
+          <input type="text" placeholder="Name" class="m-name">
+          <input type="text" placeholder="LinkedIn URL" class="m-linkedin">
+          <input type="email" placeholder="Email" class="m-email">
+          <button class="remove-btn" onclick="removeMember(this)">✕</button>
+        </div>
+      </div>
+      <button class="add-member-btn" onclick="addMember()">+ Add team member</button>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitProject()">Submit Project</button>
+    <div class="status-msg" id="status-msg"></div>
+  </div>
+</div>
+
+</body>
+</html>
