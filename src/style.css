@@ -94,7 +94,7 @@ textarea { resize: vertical; min-height: 80px; }
 .remove-img { position: absolute; top: -5px; right: -5px; background: #ef4444; color: #fff; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
 
 /* FEED */
-.projects-feed { display: flex; flex-direction: column; gap: 1.5rem; max-width: 680px; margin: 0 auto; }
+.projects-feed { display: flex; flex-direction: column; gap: 1.5rem; }
 .feed-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 .feed-body { padding: 1.2rem 1.2rem 0.8rem; }
 .feed-body h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; }
@@ -112,7 +112,7 @@ textarea { resize: vertical; min-height: 80px; }
 .project-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: var(--accent-light); text-decoration: none; margin-bottom: 0.7rem; }
 .project-link:hover { text-decoration: underline; }
 .team-section { border-top: 1px solid var(--border); padding: 0.8rem 1.2rem 1rem; margin-top: 0; }
-.team-photo { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; margin-bottom: 0.6rem; }
+.team-photo { width: 100%; aspect-ratio: 16/9; object-fit: cover; object-position: center top; border-radius: 6px; margin-bottom: 0.6rem; }
 .member-chip { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem; }
 .member-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; color: var(--accent-light); flex-shrink: 0; }
 .member-info { flex: 1; min-width: 0; }

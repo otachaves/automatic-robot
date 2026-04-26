@@ -201,7 +201,7 @@ function renderCard(p) {
     : ''
 
   const projectLink = p.link
-    ? `<a href="${p.link}" target="_blank" class="project-link">🔗 View Project</a>`
+    ? `<a href="${p.link}" target="_blank" class="project-link">🚀 Access Live App</a>`
     : ''
 
   let membersHtml = ''
@@ -209,11 +209,13 @@ function renderCard(p) {
     const arr = Array.isArray(p.members) ? p.members : JSON.parse(p.members)
     membersHtml = arr.map(m => {
       const initials = m.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
-      const links = [
-        m.linkedin ? `<a href="${m.linkedin}" target="_blank" class="member-link">LinkedIn</a>` : '',
-        m.email ? `<a href="mailto:${m.email}" class="member-link">Email</a>` : ''
-      ].filter(Boolean).join(' · ')
-      return `<div class="member-chip"><div class="member-avatar">${initials}</div><div class="member-info"><div class="member-name">${m.name}</div><div class="member-links">${links}</div></div></div>`
+      const linkedinUrl = m.linkedin
+        ? (m.linkedin.startsWith('http') ? m.linkedin : 'https://' + m.linkedin)
+        : null
+      const linkedinLink = linkedinUrl
+        ? `<a href="${linkedinUrl}" target="_blank" class="member-link">LinkedIn</a>`
+        : ''
+      return `<div class="member-chip"><div class="member-avatar">${initials}</div><div class="member-info"><div class="member-name">${m.name}</div><div class="member-links">${linkedinLink}</div></div></div>`
     }).join('')
   } catch (e) {}
 
