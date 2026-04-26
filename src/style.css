@@ -112,8 +112,16 @@ textarea { resize: vertical; min-height: 80px; }
 
 .tools-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.7rem; }
 .tool-tag { background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.3); color: var(--accent-light); padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.72rem; }
+.extra-field { margin-bottom: 0.6rem; }
+.extra-field .field-label { display: block; font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent-light); margin-bottom: 0.15rem; }
+.extra-field p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; }
+
 .project-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: var(--accent-light); text-decoration: none; margin-bottom: 0.7rem; }
 .project-link:hover { text-decoration: underline; }
+
+.delete-btn { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #f87171; padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer; font-size: 0.8rem; margin-top: 0.5rem; }
+.delete-btn:hover { background: rgba(239,68,68,0.25); }
+.admin-bar-card { background: rgba(239,68,68,0.1); color: #f87171; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; text-align: center; padding: 0.3rem; }
 .team-section { border-top: 1px solid var(--border); padding: 0.8rem 1.2rem 1rem; }
 .team-label { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-light); margin-bottom: 0.6rem; }
 .team-content { display: flex; gap: 0.8rem; align-items: flex-start; }

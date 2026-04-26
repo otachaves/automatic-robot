@@ -1,10 +1,14 @@
 import './style.css'
-import { uploadFile, loadProjects, insertProject } from './supabase.js'
+import { uploadFile, loadProjects, insertProject, deleteProject } from './supabase.js'
 
 // ── State ──────────────────────────────────────────────────────────────────
 let uploadedMediaFiles = []
 let uploadedTeamPhoto = null
 let selectedTools = []
+
+// ── Admin ──────────────────────────────────────────────────────────────────
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD
+const isAdmin = ADMIN_PASSWORD && new URLSearchParams(window.location.search).get('admin') === ADMIN_PASSWORD
 
 // ── Tabs ───────────────────────────────────────────────────────────────────
 window.switchTab = function(tab, btn) {
@@ -90,6 +94,9 @@ window.submitProject = async function() {
   const name = document.getElementById('f-name').value.trim()
   const desc = document.getElementById('f-desc').value.trim()
   const link = document.getElementById('f-link').value.trim()
+  const problem = document.getElementById('f-problem').value.trim()
+  const whoBenefits = document.getElementById('f-benefits').value.trim()
+  const howItWorks = document.getElementById('f-howit').value.trim()
 
   if (!name || !desc) { showStatus('Please fill in project name and description.', 'error'); return }
   if (selectedTools.length === 0) { showStatus('Please select at least one tool.', 'error'); return }
@@ -130,7 +137,7 @@ window.submitProject = async function() {
     }
 
     btn.textContent = 'Submitting…'
-    await insertProject({ name, description: desc, link, tools: selectedTools.join(', '), media_url: mediaUrl, media_type: mediaType, team_photo_url: teamPhotoUrl, members })
+    await insertProject({ name, description: desc, link, problem, who_benefits: whoBenefits, how_it_works: howItWorks, tools: selectedTools.join(', '), media_url: mediaUrl, media_type: mediaType, team_photo_url: teamPhotoUrl, members })
 
     showStatus('🎉 Project submitted successfully!', 'success')
     btn.textContent = 'Submitted!'
@@ -230,14 +237,29 @@ function renderCard(p) {
 
   const cardId = p.id
 
+  const extraFields = [
+    p.problem      ? { label: 'Problem',      text: p.problem }       : null,
+    p.who_benefits ? { label: 'Who benefits', text: p.who_benefits }  : null,
+    p.how_it_works ? { label: 'How it works', text: p.how_it_works }  : null,
+  ].filter(Boolean).map(f =>
+    `<div class="extra-field"><span class="field-label">${f.label}</span><p>${f.text}</p></div>`
+  ).join('')
+
+  const deleteBtn = isAdmin
+    ? `<button class="delete-btn" onclick="adminDelete('${cardId}', this)">🗑 Delete</button>`
+    : ''
+
   return `<div class="feed-card" data-id="${cardId}">
+    ${isAdmin ? '<div class="admin-bar-card">Admin mode</div>' : ''}
     <div class="feed-body">
       <h3>${p.name}</h3>
       <div class="desc-wrap">
         <p class="desc collapsed">${p.description}</p>
         <button class="read-more-btn" onclick="toggleDesc(this)">Read more</button>
       </div>
+      ${extraFields}
       ${tools}${projectLink}
+      ${deleteBtn}
     </div>
     ${media}
     <div class="team-section">
@@ -261,6 +283,21 @@ window.addEventPhotos = function(input) {
   })
 }
 
+// ── Admin ──────────────────────────────────────────────────────────────────
+window.adminDelete = async function(id, btn) {
+  if (!confirm('Delete this project? This cannot be undone.')) return
+  btn.disabled = true
+  btn.textContent = 'Deleting…'
+  try {
+    await deleteProject(id)
+    btn.closest('.feed-card').remove()
+  } catch(e) {
+    btn.disabled = false
+    btn.textContent = '🗑 Delete'
+    alert('Delete failed: ' + (e.message || e))
+  }
+}
+
 // ── Read more ──────────────────────────────────────────────────────────────
 window.toggleDesc = function(btn) {
   const desc = btn.previousElementSibling
@@ -268,15 +305,15 @@ window.toggleDesc = function(btn) {
   btn.textContent = expanded ? 'Read more' : 'Show less'
 }
 
-// After rendering, hide "Read more" buttons for short descriptions
+// Hide "Read more" button when text is short enough not to clamp
 function updateReadMoreButtons() {
-  document.querySelectorAll('.desc-wrap').forEach(wrap => {
-    const desc = wrap.querySelector('.desc')
-    const btn = wrap.querySelector('.read-more-btn')
-    // check if text is actually clamped
-    desc.classList.add('collapsed')
-    btn.style.display = desc.scrollHeight > desc.clientHeight ? '' : 'none'
-  })
+  setTimeout(() => {
+    document.querySelectorAll('.desc-wrap').forEach(wrap => {
+      const desc = wrap.querySelector('.desc')
+      const btn = wrap.querySelector('.read-more-btn')
+      btn.style.display = desc.scrollHeight > desc.clientHeight + 2 ? '' : 'none'
+    })
+  }, 100)
 }
 
 // ── Lightbox ───────────────────────────────────────────────────────────────
