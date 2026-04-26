@@ -119,9 +119,23 @@ textarea { resize: vertical; min-height: 80px; }
 .project-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: var(--accent-light); text-decoration: none; margin-bottom: 0.7rem; }
 .project-link:hover { text-decoration: underline; }
 
-.delete-btn { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #f87171; padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer; font-size: 0.8rem; margin-top: 0.5rem; }
+.admin-btns { display: flex; gap: 0.5rem; margin-top: 0.7rem; }
+.edit-btn { background: rgba(124,58,237,0.15); border: 1px solid var(--border); color: var(--accent-light); padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+.edit-btn:hover { background: rgba(124,58,237,0.25); }
+.delete-btn { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #f87171; padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
 .delete-btn:hover { background: rgba(239,68,68,0.25); }
 .admin-bar-card { background: rgba(239,68,68,0.1); color: #f87171; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; text-align: center; padding: 0.3rem; }
+
+/* CHAR COUNTER */
+.char-count { float: right; font-size: 0.7rem; color: var(--text-muted); font-weight: 400; }
+.char-count.near-limit { color: #f59e0b; }
+
+/* EDIT MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; align-items: center; justify-content: center; padding: 1rem; }
+.modal-overlay.open { display: flex; }
+.modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; font-weight: 600; font-size: 1rem; }
+.modal-header button { background: transparent; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; }
 .team-section { border-top: 1px solid var(--border); padding: 0.8rem 1.2rem 1rem; }
 .team-label { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-light); margin-bottom: 0.6rem; }
 .team-content { display: flex; gap: 0.8rem; align-items: flex-start; }

@@ -50,23 +50,23 @@
     </div>
 
     <div class="form-group">
-      <label>Description *</label>
-      <textarea id="f-desc" placeholder="Brief overview of your project…"></textarea>
+      <label>Description * <span class="char-count" id="f-desc-count">0/350</span></label>
+      <textarea id="f-desc" maxlength="350" placeholder="Brief overview of your project…" oninput="updateCount('f-desc','f-desc-count',350)"></textarea>
     </div>
 
     <div class="form-group">
-      <label>What problem does this solve? *</label>
-      <textarea id="f-problem" placeholder="What pain point or challenge does your project address?"></textarea>
+      <label>What problem does this solve? * <span class="char-count" id="f-problem-count">0/300</span></label>
+      <textarea id="f-problem" maxlength="300" placeholder="What pain point or challenge does your project address?" oninput="updateCount('f-problem','f-problem-count',300)"></textarea>
     </div>
 
     <div class="form-group">
-      <label>Who benefits?</label>
-      <input type="text" id="f-benefits" placeholder="Target user or customer (e.g. architects, contractors…)">
+      <label>Who benefits? <span class="char-count" id="f-benefits-count">0/150</span></label>
+      <input type="text" id="f-benefits" maxlength="150" placeholder="Target user or customer (e.g. architects, contractors…)" oninput="updateCount('f-benefits','f-benefits-count',150)">
     </div>
 
     <div class="form-group">
-      <label>How does it work?</label>
-      <textarea id="f-howit" placeholder="One sentence: the key technology or workflow behind it…" style="min-height:60px"></textarea>
+      <label>How does it work? <span class="char-count" id="f-howit-count">0/250</span></label>
+      <textarea id="f-howit" maxlength="250" placeholder="One sentence: the key technology or workflow behind it…" style="min-height:60px" oninput="updateCount('f-howit','f-howit-count',250)"></textarea>
     </div>
 
     <div class="form-group">
@@ -135,6 +135,24 @@
 
     <button class="submit-btn" id="submit-btn" onclick="submitProject()">Submit Project</button>
     <div class="status-msg" id="status-msg"></div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="edit-modal" class="modal-overlay" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span>Edit Project</span>
+      <button onclick="closeEditModal()">✕</button>
+    </div>
+    <input type="hidden" id="em-id">
+    <div class="form-group"><label>Project Name</label><input type="text" id="em-name"></div>
+    <div class="form-group"><label>Description</label><textarea id="em-desc" maxlength="350"></textarea></div>
+    <div class="form-group"><label>What problem does this solve?</label><textarea id="em-problem" maxlength="300"></textarea></div>
+    <div class="form-group"><label>Who benefits?</label><input type="text" id="em-benefits" maxlength="150"></div>
+    <div class="form-group"><label>How does it work?</label><textarea id="em-howit" maxlength="250" style="min-height:60px"></textarea></div>
+    <div class="form-group"><label>Project Link</label><input type="url" id="em-link" placeholder="https://…"></div>
+    <button class="submit-btn" id="em-save" onclick="saveEdit()">Save Changes</button>
   </div>
 </div>
 

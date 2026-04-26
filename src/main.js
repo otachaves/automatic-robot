@@ -1,14 +1,16 @@
 import './style.css'
-import { uploadFile, loadProjects, insertProject, deleteProject } from './supabase.js'
+import { uploadFile, loadProjects, insertProject, deleteProject, updateProject } from './supabase.js'
 
 // ── State ──────────────────────────────────────────────────────────────────
 let uploadedMediaFiles = []
 let uploadedTeamPhoto = null
 let selectedTools = []
+const projectsMap = {}
 
 // ── Admin ──────────────────────────────────────────────────────────────────
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD
-const isAdmin = ADMIN_PASSWORD && new URLSearchParams(window.location.search).get('admin') === ADMIN_PASSWORD
+// Default password is 'archipelago2026' — override with VITE_ADMIN_PASSWORD env var in Vercel
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'archipelago2026'
+const isAdmin = new URLSearchParams(window.location.search).get('admin') === ADMIN_PASSWORD
 
 // ── Tabs ───────────────────────────────────────────────────────────────────
 window.switchTab = function(tab, btn) {
@@ -180,8 +182,9 @@ async function renderGallery() {
       el.innerHTML = '<div class="empty-state"><div class="icon">🚀</div><p>No projects yet. Be the first to submit!</p></div>'
       return
     }
+    projects.forEach(p => { projectsMap[p.id] = p })
     el.innerHTML = '<div class="projects-feed">' + projects.map(renderCard).join('') + '</div>'
-    requestAnimationFrame(updateReadMoreButtons)
+    setTimeout(updateReadMoreButtons, 150)
   } catch (err) {
     el.innerHTML = '<div class="empty-state"><div class="icon">⚙️</div><p>Could not load projects — check your Supabase config.</p></div>'
   }
@@ -245,12 +248,14 @@ function renderCard(p) {
     `<div class="extra-field"><span class="field-label">${f.label}</span><p>${f.text}</p></div>`
   ).join('')
 
-  const deleteBtn = isAdmin
-    ? `<button class="delete-btn" onclick="adminDelete('${cardId}', this)">🗑 Delete</button>`
-    : ''
+  const adminBtns = isAdmin ? `
+    <div class="admin-btns">
+      <button class="edit-btn" onclick="adminEdit('${cardId}')">✏️ Edit</button>
+      <button class="delete-btn" onclick="adminDelete('${cardId}', this)">🗑 Delete</button>
+    </div>` : ''
 
   return `<div class="feed-card" data-id="${cardId}">
-    ${isAdmin ? '<div class="admin-bar-card">Admin mode</div>' : ''}
+    ${isAdmin ? '<div class="admin-bar-card">⚙️ Admin mode</div>' : ''}
     <div class="feed-body">
       <h3>${p.name}</h3>
       <div class="desc-wrap">
@@ -259,7 +264,7 @@ function renderCard(p) {
       </div>
       ${extraFields}
       ${tools}${projectLink}
-      ${deleteBtn}
+      ${adminBtns}
     </div>
     ${media}
     <div class="team-section">
@@ -298,6 +303,47 @@ window.adminDelete = async function(id, btn) {
   }
 }
 
+window.adminEdit = function(id) {
+  const p = projectsMap[id]
+  if (!p) return
+  document.getElementById('em-id').value = p.id
+  document.getElementById('em-name').value = p.name || ''
+  document.getElementById('em-desc').value = p.description || ''
+  document.getElementById('em-problem').value = p.problem || ''
+  document.getElementById('em-benefits').value = p.who_benefits || ''
+  document.getElementById('em-howit').value = p.how_it_works || ''
+  document.getElementById('em-link').value = p.link || ''
+  document.getElementById('edit-modal').classList.add('open')
+}
+
+window.closeEditModal = function() {
+  document.getElementById('edit-modal').classList.remove('open')
+}
+
+window.saveEdit = async function() {
+  const id = document.getElementById('em-id').value
+  const updates = {
+    name:          document.getElementById('em-name').value.trim(),
+    description:   document.getElementById('em-desc').value.trim(),
+    problem:       document.getElementById('em-problem').value.trim(),
+    who_benefits:  document.getElementById('em-benefits').value.trim(),
+    how_it_works:  document.getElementById('em-howit').value.trim(),
+    link:          document.getElementById('em-link').value.trim(),
+  }
+  const btn = document.getElementById('em-save')
+  btn.disabled = true
+  btn.textContent = 'Saving…'
+  try {
+    await updateProject(id, updates)
+    closeEditModal()
+    renderGallery()
+  } catch(e) {
+    alert('Save failed: ' + (e.message || e))
+    btn.disabled = false
+    btn.textContent = 'Save Changes'
+  }
+}
+
 // ── Read more ──────────────────────────────────────────────────────────────
 window.toggleDesc = function(btn) {
   const desc = btn.previousElementSibling
@@ -307,13 +353,14 @@ window.toggleDesc = function(btn) {
 
 // Hide "Read more" button when text is short enough not to clamp
 function updateReadMoreButtons() {
-  setTimeout(() => {
-    document.querySelectorAll('.desc-wrap').forEach(wrap => {
-      const desc = wrap.querySelector('.desc')
-      const btn = wrap.querySelector('.read-more-btn')
-      btn.style.display = desc.scrollHeight > desc.clientHeight + 2 ? '' : 'none'
-    })
-  }, 100)
+  document.querySelectorAll('.desc-wrap').forEach(wrap => {
+    const desc = wrap.querySelector('.desc')
+    const btn = wrap.querySelector('.read-more-btn')
+    desc.classList.remove('collapsed')
+    const fullH = desc.scrollHeight
+    desc.classList.add('collapsed')
+    btn.style.display = fullH > desc.clientHeight + 4 ? '' : 'none'
+  })
 }
 
 // ── Lightbox ───────────────────────────────────────────────────────────────
@@ -357,6 +404,14 @@ function lbKeyHandler(e) {
   if (e.key === 'Escape') closeLightbox()
   if (e.key === 'ArrowLeft') { lbIndex = (lbIndex - 1 + lbImages.length) % lbImages.length; showLbImage() }
   if (e.key === 'ArrowRight') { lbIndex = (lbIndex + 1) % lbImages.length; showLbImage() }
+}
+
+// ── Char counters ──────────────────────────────────────────────────────────
+window.updateCount = function(inputId, countId, max) {
+  const len = document.getElementById(inputId).value.length
+  const el = document.getElementById(countId)
+  el.textContent = `${len}/${max}`
+  el.classList.toggle('near-limit', len > max * 0.85)
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────

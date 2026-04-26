@@ -34,3 +34,8 @@ export async function deleteProject(id) {
   const { error } = await supabase.from('projects').delete().eq('id', id)
   if (error) throw error
 }
+
+export async function updateProject(id, updates) {
+  const { error } = await supabase.from('projects').update(updates).eq('id', id)
+  if (error) throw error
+}
