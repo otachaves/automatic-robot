@@ -189,19 +189,23 @@ function renderCard(p) {
     if (p.media_url) imageUrls = [p.media_url]
   }
 
+  const imagesAttr = imageUrls.length ? ` data-images='${JSON.stringify(imageUrls)}'` : ''
   let media = ''
   if (imageUrls.length === 1) {
-    media = `<div class="feed-media single"><img src="${imageUrls[0]}" alt="Screenshot" onerror="this.parentElement.style.display='none'"></div>`
+    media = `<div class="feed-media single"${imagesAttr}><img src="${imageUrls[0]}" data-index="0" class="zoomable" alt="Screenshot" onerror="this.parentElement.style.display='none'"></div>`
   } else if (imageUrls.length > 1) {
-    media = `<div class="feed-media multi">${imageUrls.map(u => `<img src="${u}" alt="Screenshot" onerror="this.remove()">`).join('')}</div>`
+    const imgs = imageUrls.map((u, i) => `<img src="${u}" data-index="${i}" class="zoomable" alt="Screenshot" onerror="this.remove()">`).join('')
+    media = `<div class="feed-media multi"${imagesAttr}>${imgs}</div>`
   }
 
   const tools = p.tools
     ? '<div class="tools-list">' + p.tools.split(',').map(t => `<span class="tool-tag">${t.trim()}</span>`).join('') + '</div>'
     : ''
 
-  const projectLink = p.link
-    ? `<a href="${p.link}" target="_blank" class="project-link">🚀 Access Live App</a>`
+  const rawLink = p.link || ''
+  const hrefLink = rawLink && !rawLink.startsWith('http') ? 'https://' + rawLink : rawLink
+  const projectLink = hrefLink
+    ? `<a href="${hrefLink}" target="_blank" class="project-link">🚀 Access Live App</a>`
     : ''
 
   let membersHtml = ''
@@ -231,8 +235,11 @@ function renderCard(p) {
     </div>
     ${media}
     <div class="team-section">
-      ${teamPhoto}
-      <div class="team-members">${membersHtml}</div>
+      <div class="team-label">Team</div>
+      <div class="team-content">
+        ${teamPhoto}
+        <div class="team-members">${membersHtml}</div>
+      </div>
     </div>
   </div>`
 }
@@ -246,6 +253,49 @@ window.addEventPhotos = function(input) {
     img.src = URL.createObjectURL(file)
     grid.appendChild(img)
   })
+}
+
+// ── Lightbox ───────────────────────────────────────────────────────────────
+let lbImages = []
+let lbIndex = 0
+
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('zoomable')) openLightbox(e.target)
+})
+
+window.openLightbox = function(img) {
+  const container = img.closest('[data-images]')
+  lbImages = container ? JSON.parse(container.dataset.images) : [img.src]
+  lbIndex = parseInt(img.dataset.index || '0')
+  showLbImage()
+  document.getElementById('lightbox').classList.add('open')
+  document.addEventListener('keydown', lbKeyHandler)
+}
+
+window.closeLightbox = function() {
+  document.getElementById('lightbox').classList.remove('open')
+  document.removeEventListener('keydown', lbKeyHandler)
+}
+
+window.lbNav = function(dir, e) {
+  e.stopPropagation()
+  lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length
+  showLbImage()
+}
+
+function showLbImage() {
+  document.getElementById('lb-img').src = lbImages[lbIndex]
+  document.getElementById('lb-counter').textContent = lbImages.length > 1
+    ? `${lbIndex + 1} / ${lbImages.length}` : ''
+  const multi = lbImages.length > 1
+  document.getElementById('lb-prev').style.display = multi ? '' : 'none'
+  document.getElementById('lb-next').style.display = multi ? '' : 'none'
+}
+
+function lbKeyHandler(e) {
+  if (e.key === 'Escape') closeLightbox()
+  if (e.key === 'ArrowLeft') { lbIndex = (lbIndex - 1 + lbImages.length) % lbImages.length; showLbImage() }
+  if (e.key === 'ArrowRight') { lbIndex = (lbIndex + 1) % lbImages.length; showLbImage() }
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────

@@ -111,9 +111,23 @@ textarea { resize: vertical; min-height: 80px; }
 .tool-tag { background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.3); color: var(--accent-light); padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.72rem; }
 .project-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: var(--accent-light); text-decoration: none; margin-bottom: 0.7rem; }
 .project-link:hover { text-decoration: underline; }
-.team-section { border-top: 1px solid var(--border); padding: 0.8rem 1.2rem 1rem; display: flex; gap: 0.8rem; align-items: flex-start; }
+.team-section { border-top: 1px solid var(--border); padding: 0.8rem 1.2rem 1rem; }
+.team-label { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-light); margin-bottom: 0.6rem; }
+.team-content { display: flex; gap: 0.8rem; align-items: flex-start; }
 .team-photo { width: 330px; height: 225px; object-fit: cover; object-position: center top; border-radius: 8px; flex-shrink: 0; }
 .team-members { flex: 1; min-width: 0; }
+
+/* LIGHTBOX */
+.lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.93); z-index: 1000; align-items: center; justify-content: center; }
+.lightbox.open { display: flex; }
+#lb-img { max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 8px; }
+.lb-close { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.15); border: none; color: #fff; width: 42px; height: 42px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; }
+.lb-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.15); border: none; color: #fff; width: 48px; height: 48px; border-radius: 50%; font-size: 2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; }
+.lb-prev { left: 1rem; }
+.lb-next { right: 1rem; }
+.lb-nav:hover, .lb-close:hover { background: rgba(255,255,255,0.3); }
+.lb-counter { position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font-size: 0.82rem; }
+.zoomable { cursor: zoom-in; }
 .member-chip { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem; }
 .member-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; color: var(--accent-light); flex-shrink: 0; }
 .member-info { flex: 1; min-width: 0; }
@@ -151,8 +165,12 @@ textarea { resize: vertical; min-height: 80px; }
   /* Feed cards: tighter padding */
   .feed-body { padding: 1rem 1rem 0.6rem; }
   .feed-media.multi img { height: 200px; }
-  .team-section { padding: 0.7rem 1rem 0.9rem; flex-direction: column; }
+  .team-section { padding: 0.7rem 1rem 0.9rem; }
+  .team-content { flex-direction: column; }
   .team-photo { width: 100%; height: auto; aspect-ratio: 16/9; }
+  .lb-nav { width: 40px; height: 40px; font-size: 1.5rem; }
+  .lb-prev { left: 0.4rem; }
+  .lb-next { right: 0.4rem; }
 
   /* Bigger tap targets */
   .tab-btn, .submit-btn, .add-member-btn, .tools-custom button { min-height: 44px; }

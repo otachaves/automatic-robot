@@ -123,5 +123,14 @@
   </div>
 </div>
 
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <button id="lb-prev" class="lb-nav lb-prev" onclick="lbNav(-1, event)">&#8249;</button>
+  <img id="lb-img" src="" alt="Screenshot" onclick="event.stopPropagation()">
+  <button id="lb-next" class="lb-nav lb-next" onclick="lbNav(1, event)">&#8250;</button>
+  <div id="lb-counter" class="lb-counter"></div>
+</div>
+
 </body>
 </html>
