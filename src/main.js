@@ -303,6 +303,8 @@ window.adminDelete = async function(id, btn) {
   }
 }
 
+let editImages = [] // { url: string, file: File|null }
+
 window.adminEdit = function(id) {
   const p = projectsMap[id]
   if (!p) return
@@ -313,7 +315,38 @@ window.adminEdit = function(id) {
   document.getElementById('em-benefits').value = p.who_benefits || ''
   document.getElementById('em-howit').value = p.how_it_works || ''
   document.getElementById('em-link').value = p.link || ''
+  // load existing images
+  try {
+    const parsed = JSON.parse(p.media_url)
+    editImages = (Array.isArray(parsed) ? parsed : [parsed]).map(url => ({ url, file: null }))
+  } catch {
+    editImages = p.media_url ? [{ url: p.media_url, file: null }] : []
+  }
+  renderEditImages()
   document.getElementById('edit-modal').classList.add('open')
+}
+
+function renderEditImages() {
+  const strip = document.getElementById('edit-images-preview')
+  if (!strip) return
+  strip.innerHTML = editImages.map((img, i) => `
+    <div class="preview-thumb">
+      <img src="${img.url}" alt="screenshot">
+      <button class="remove-img" onclick="removeEditImage(${i})">✕</button>
+    </div>`).join('')
+}
+
+window.removeEditImage = function(i) {
+  editImages.splice(i, 1)
+  renderEditImages()
+}
+
+window.addEditImages = function(input) {
+  Array.from(input.files).forEach(file => {
+    editImages.push({ url: URL.createObjectURL(file), file })
+  })
+  renderEditImages()
+  input.value = ''
 }
 
 window.closeEditModal = function() {
@@ -322,22 +355,37 @@ window.closeEditModal = function() {
 
 window.saveEdit = async function() {
   const id = document.getElementById('em-id').value
-  const updates = {
-    name:          document.getElementById('em-name').value.trim(),
-    description:   document.getElementById('em-desc').value.trim(),
-    problem:       document.getElementById('em-problem').value.trim(),
-    who_benefits:  document.getElementById('em-benefits').value.trim(),
-    how_it_works:  document.getElementById('em-howit').value.trim(),
-    link:          document.getElementById('em-link').value.trim(),
-  }
   const btn = document.getElementById('em-save')
   btn.disabled = true
   btn.textContent = 'Saving…'
   try {
+    // upload any new images
+    const finalUrls = []
+    for (const img of editImages) {
+      if (img.file) {
+        btn.textContent = 'Uploading images…'
+        const url = await uploadFile(img.file, 'media')
+        finalUrls.push(url)
+      } else {
+        finalUrls.push(img.url)
+      }
+    }
+    const updates = {
+      name:          document.getElementById('em-name').value.trim(),
+      description:   document.getElementById('em-desc').value.trim(),
+      problem:       document.getElementById('em-problem').value.trim(),
+      who_benefits:  document.getElementById('em-benefits').value.trim(),
+      how_it_works:  document.getElementById('em-howit').value.trim(),
+      link:          document.getElementById('em-link').value.trim(),
+      media_url:     JSON.stringify(finalUrls),
+      media_type:    'image',
+    }
+    btn.textContent = 'Saving…'
     await updateProject(id, updates)
     closeEditModal()
     renderGallery()
   } catch(e) {
+    console.error(e)
     alert('Save failed: ' + (e.message || e))
     btn.disabled = false
     btn.textContent = 'Save Changes'
