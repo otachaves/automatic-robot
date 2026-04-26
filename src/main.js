@@ -304,6 +304,7 @@ window.adminDelete = async function(id, btn) {
 }
 
 let editImages = [] // { url: string, file: File|null }
+let editTeamPhoto = null // { url: string, file: File|null }
 
 window.adminEdit = function(id) {
   const p = projectsMap[id]
@@ -315,14 +316,15 @@ window.adminEdit = function(id) {
   document.getElementById('em-benefits').value = p.who_benefits || ''
   document.getElementById('em-howit').value = p.how_it_works || ''
   document.getElementById('em-link').value = p.link || ''
-  // load existing images
   try {
     const parsed = JSON.parse(p.media_url)
     editImages = (Array.isArray(parsed) ? parsed : [parsed]).map(url => ({ url, file: null }))
   } catch {
     editImages = p.media_url ? [{ url: p.media_url, file: null }] : []
   }
+  editTeamPhoto = p.team_photo_url ? { url: p.team_photo_url, file: null } : null
   renderEditImages()
+  renderEditTeamPhoto()
   document.getElementById('edit-modal').classList.add('open')
 }
 
@@ -349,6 +351,29 @@ window.addEditImages = function(input) {
   input.value = ''
 }
 
+function renderEditTeamPhoto() {
+  const wrap = document.getElementById('edit-team-photo-preview')
+  if (!wrap) return
+  if (!editTeamPhoto) { wrap.innerHTML = ''; return }
+  wrap.innerHTML = `<div class="preview-thumb" style="width:160px;height:100px">
+    <img src="${editTeamPhoto.url}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">
+    <button class="remove-img" onclick="removeEditTeamPhoto()">✕</button>
+  </div>`
+}
+
+window.removeEditTeamPhoto = function() {
+  editTeamPhoto = null
+  renderEditTeamPhoto()
+}
+
+window.setEditTeamPhoto = function(input) {
+  const file = input.files[0]
+  if (!file) return
+  editTeamPhoto = { url: URL.createObjectURL(file), file }
+  renderEditTeamPhoto()
+  input.value = ''
+}
+
 window.closeEditModal = function() {
   document.getElementById('edit-modal').classList.remove('open')
 }
@@ -370,18 +395,28 @@ window.saveEdit = async function() {
         finalUrls.push(img.url)
       }
     }
+    // upload new team photo if changed
+    let teamPhotoUrl = editTeamPhoto ? editTeamPhoto.url : ''
+    if (editTeamPhoto?.file) {
+      btn.textContent = 'Uploading team photo…'
+      teamPhotoUrl = await uploadFile(editTeamPhoto.file, 'team-photos')
+    }
+
     const updates = {
-      name:          document.getElementById('em-name').value.trim(),
-      description:   document.getElementById('em-desc').value.trim(),
-      problem:       document.getElementById('em-problem').value.trim(),
-      who_benefits:  document.getElementById('em-benefits').value.trim(),
-      how_it_works:  document.getElementById('em-howit').value.trim(),
-      link:          document.getElementById('em-link').value.trim(),
-      media_url:     JSON.stringify(finalUrls),
-      media_type:    'image',
+      name:           document.getElementById('em-name').value.trim(),
+      description:    document.getElementById('em-desc').value.trim(),
+      problem:        document.getElementById('em-problem').value.trim(),
+      who_benefits:   document.getElementById('em-benefits').value.trim(),
+      how_it_works:   document.getElementById('em-howit').value.trim(),
+      link:           document.getElementById('em-link').value.trim(),
+      media_url:      JSON.stringify(finalUrls),
+      media_type:     'image',
+      team_photo_url: teamPhotoUrl,
     }
     btn.textContent = 'Saving…'
     await updateProject(id, updates)
+    // update local cache so re-edit works without refresh
+    projectsMap[id] = { ...projectsMap[id], ...updates }
     closeEditModal()
     renderGallery()
   } catch(e) {
