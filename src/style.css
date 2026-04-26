@@ -98,7 +98,10 @@ textarea { resize: vertical; min-height: 80px; }
 .feed-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 .feed-body { padding: 1.2rem 1.2rem 0.8rem; }
 .feed-body h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; }
-.feed-body .desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 0.8rem; }
+.desc-wrap { margin-bottom: 0.8rem; }
+.feed-body .desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 0.3rem; }
+.feed-body .desc.collapsed { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.read-more-btn { background: none; border: none; color: var(--accent-light); font-size: 0.78rem; cursor: pointer; padding: 0; }
 /* FEED MEDIA */
 .feed-media { width: 100%; background: var(--surface); }
 .feed-media.single img { width: 100%; max-height: 420px; object-fit: cover; display: block; }
@@ -114,7 +117,8 @@ textarea { resize: vertical; min-height: 80px; }
 .team-section { border-top: 1px solid var(--border); padding: 0.8rem 1.2rem 1rem; }
 .team-label { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent-light); margin-bottom: 0.6rem; }
 .team-content { display: flex; gap: 0.8rem; align-items: flex-start; }
-.team-photo { width: 330px; height: 225px; object-fit: cover; object-position: center top; border-radius: 8px; flex-shrink: 0; }
+.team-photo-wrap { flex-shrink: 0; }
+.team-photo { width: 330px; height: 225px; object-fit: cover; object-position: center top; border-radius: 8px; display: block; }
 .team-members { flex: 1; min-width: 0; }
 
 /* LIGHTBOX */
@@ -167,6 +171,7 @@ textarea { resize: vertical; min-height: 80px; }
   .feed-media.multi img { height: 200px; }
   .team-section { padding: 0.7rem 1rem 0.9rem; }
   .team-content { flex-direction: column; }
+  .team-photo-wrap { width: 100%; }
   .team-photo { width: 100%; height: auto; aspect-ratio: 16/9; }
   .lb-nav { width: 40px; height: 40px; font-size: 1.5rem; }
   .lb-prev { left: 0.4rem; }

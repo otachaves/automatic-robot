@@ -174,6 +174,7 @@ async function renderGallery() {
       return
     }
     el.innerHTML = '<div class="projects-feed">' + projects.map(renderCard).join('') + '</div>'
+    requestAnimationFrame(updateReadMoreButtons)
   } catch (err) {
     el.innerHTML = '<div class="empty-state"><div class="icon">⚙️</div><p>Could not load projects — check your Supabase config.</p></div>'
   }
@@ -224,13 +225,18 @@ function renderCard(p) {
   } catch (e) {}
 
   const teamPhoto = p.team_photo_url
-    ? `<img src="${p.team_photo_url}" class="team-photo" alt="Team photo">`
+    ? `<div class="team-photo-wrap" data-images='["${p.team_photo_url}"]'><img src="${p.team_photo_url}" class="team-photo zoomable" data-index="0" alt="Team photo"></div>`
     : ''
 
-  return `<div class="feed-card">
+  const cardId = p.id
+
+  return `<div class="feed-card" data-id="${cardId}">
     <div class="feed-body">
       <h3>${p.name}</h3>
-      <p class="desc">${p.description}</p>
+      <div class="desc-wrap">
+        <p class="desc collapsed">${p.description}</p>
+        <button class="read-more-btn" onclick="toggleDesc(this)">Read more</button>
+      </div>
       ${tools}${projectLink}
     </div>
     ${media}
@@ -252,6 +258,24 @@ window.addEventPhotos = function(input) {
     img.className = 'event-photo'
     img.src = URL.createObjectURL(file)
     grid.appendChild(img)
+  })
+}
+
+// ── Read more ──────────────────────────────────────────────────────────────
+window.toggleDesc = function(btn) {
+  const desc = btn.previousElementSibling
+  const expanded = desc.classList.toggle('collapsed')
+  btn.textContent = expanded ? 'Read more' : 'Show less'
+}
+
+// After rendering, hide "Read more" buttons for short descriptions
+function updateReadMoreButtons() {
+  document.querySelectorAll('.desc-wrap').forEach(wrap => {
+    const desc = wrap.querySelector('.desc')
+    const btn = wrap.querySelector('.read-more-btn')
+    // check if text is actually clamped
+    desc.classList.add('collapsed')
+    btn.style.display = desc.scrollHeight > desc.clientHeight ? '' : 'none'
   })
 }
 
