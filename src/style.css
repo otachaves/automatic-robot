@@ -112,7 +112,7 @@ textarea { resize: vertical; min-height: 80px; }
 .project-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: var(--accent-light); text-decoration: none; margin-bottom: 0.7rem; }
 .project-link:hover { text-decoration: underline; }
 .team-section { border-top: 1px solid var(--border); padding: 0.8rem 1.2rem 1rem; display: flex; gap: 0.8rem; align-items: flex-start; }
-.team-photo { width: 110px; height: 75px; object-fit: cover; object-position: center top; border-radius: 8px; flex-shrink: 0; }
+.team-photo { width: 330px; height: 225px; object-fit: cover; object-position: center top; border-radius: 8px; flex-shrink: 0; }
 .team-members { flex: 1; min-width: 0; }
 .member-chip { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem; }
 .member-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; color: var(--accent-light); flex-shrink: 0; }
@@ -151,7 +151,8 @@ textarea { resize: vertical; min-height: 80px; }
   /* Feed cards: tighter padding */
   .feed-body { padding: 1rem 1rem 0.6rem; }
   .feed-media.multi img { height: 200px; }
-  .team-section { padding: 0.7rem 1rem 0.9rem; }
+  .team-section { padding: 0.7rem 1rem 0.9rem; flex-direction: column; }
+  .team-photo { width: 100%; height: auto; aspect-ratio: 16/9; }
 
   /* Bigger tap targets */
   .tab-btn, .submit-btn, .add-member-btn, .tools-custom button { min-height: 44px; }
